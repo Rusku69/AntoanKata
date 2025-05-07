@@ -14,7 +14,7 @@ st.set_page_config(page_title="Weather & Air Quality App", layout="centered")
 st.title("🌤️ Weather & 🌫️ Air Quality Checker")
 
 # City input
-city = st.text_input("Enter city name:", "Plovdiv")
+city = st.text_input("Enter city name:", "Varna")  # Change city to Varna for testing
 
 # Fetch data only when a city is entered
 if city:
