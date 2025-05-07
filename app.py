@@ -137,3 +137,8 @@ if city:
 
     except Exception as e:
         st.warning(f"🌊 Ocean current data error: {e}")
+
+    # Add link to Stormglass API website
+    st.markdown(
+        "[Learn more about Stormglass API](https://stormglass.io/) for ocean data and other API services."
+    )
