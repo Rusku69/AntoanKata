@@ -90,6 +90,25 @@ if city:
     else:
         st.error("❌ Failed to fetch air pollution data.")
 
+    # --- Check If It's Good to Go to the Beach ---
+    st.subheader("🏖️ Is It Good to Go to the Beach?")
+    
+    # Determine conditions
+    beach_status = "✅ It's a great day for the beach!"
+    
+    # Conditions to go to the beach
+    if temp < 20 or temp > 30:
+        beach_status = "❌ Too hot or too cold for the beach."
+    if aqi > 2:  # Fair or worse air quality
+        beach_status = "❌ Air quality is poor for the beach."
+    if pm25_concentration and pm25_concentration > 35:  # PM2.5 exceeds 35 μg/m³
+        beach_status = "❌ High levels of fine particulate matter, not ideal for the beach."
+    if wind_speed > 15:  # High wind speeds
+        beach_status = "❌ Too windy for a comfortable day at the beach."
+    
+    # Display beach status
+    st.write(beach_status)
+
     # --- Get 5-Day Weather Forecast ---
     st.subheader("🌤️ 5-Day Weather Forecast")
 
