@@ -1,7 +1,7 @@
 import streamlit as st  # web app
 import requests         # connect with API
 import pandas as pd     # tables
-import matplotlib.pyplot as plt  # fixed typo: mathplotlib -> matplotlib
+import matplotlib.pyplot as plt  # plotting
 
 API_KEY = "db21681e4a2b591911616c15640d8440"
 URL_WEATHER = "https://api.openweathermap.org/data/2.5/weather"
@@ -35,6 +35,18 @@ if city:
         st.subheader(f"Weather in {city}")
         st.metric("Temperature", f"{temp} °C")
         st.write(f"**Condition:** {desc}")
+
+        # --- Wind Info ---
+        wind_speed = weather_data['wind']['speed']
+        wind_deg = weather_data['wind'].get('deg', 0)
+
+        def wind_direction(deg):
+            directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW']
+            ix = int((deg + 22.5) // 45) % 8
+            return directions[ix]
+
+        st.write(f"**Wind:** {wind_speed} m/s, {wind_direction(wind_deg)} ({wind_deg}°)")
+
     else:
         st.error("❌ Failed to fetch weather data. Check the city name.")
         st.stop()
