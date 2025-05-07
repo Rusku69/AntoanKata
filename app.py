@@ -7,7 +7,7 @@ import datetime
 API_KEY = "db21681e4a2b591911616c15640d8440"  # OpenWeatherMap API Key
 URL_WEATHER = "https://api.openweathermap.org/data/2.5/weather"
 URL_POLLUTION = "http://api.openweathermap.org/data/2.5/air_pollution"
-STORMGLASS_API_KEY = "7becd2a2-2b28-11f0-863c-0242ac130003-7becd306-2b28-11f0-863c-0242ac130003"  # Stormglass API Key
+URL_FORECAST = "https://api.openweathermap.org/data/2.5/forecast"  # 5-day forecast endpoint
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="Weather & Air Quality App", layout="centered")
@@ -85,61 +85,51 @@ if city:
     else:
         st.error("❌ Failed to fetch air pollution data.")
 
-    # --- Get Ocean Currents (Stormglass) ---
-    st.subheader("🌊 Ocean Currents (if near sea)")
+    # --- Get 5-Day Weather Forecast ---
+    st.subheader("🌤️ 5-Day Weather Forecast")
 
     try:
-        # Manually specify coordinates for Varna
-        lat_varna = 43.2140
-        lon_varna = 27.9147
+        forecast_params = {
+            "q": city,
+            "appid": API_KEY,
+            "units": "metric"
+        }
 
-        end_time = datetime.datetime.utcnow().isoformat()
+        response_forecast = requests.get(URL_FORECAST, params=forecast_params)
 
-        # Corrected API URL
-        response_ocean = requests.get(
-            'https://api.stormglass.io/v2/weather/point',
-            params={
-                'lat': lat_varna,
-                'lng': lon_varna,
-                'params': 'currentSpeed,currentDirection',
-                'source': 'noaa',
-                'end': end_time
-            },
-            headers={
-                'Authorization': STORMGLASS_API_KEY
-            }
-        )
+        if response_forecast.status_code == 200:
+            forecast_data = response_forecast.json()
 
-        if response_ocean.status_code == 200:
-            ocean_data = response_ocean.json()
+            # Prepare a DataFrame for the forecast
+            forecast_list = []
+            for item in forecast_data['list']:
+                dt = datetime.datetime.utcfromtimestamp(item['dt'])
+                temp = item['main']['temp']
+                desc = item['weather'][0]['description']
+                forecast_list.append({
+                    'Date': dt,
+                    'Temperature (°C)': temp,
+                    'Description': desc.title()
+                })
 
-            # Check if data for ocean currents exists
-            if ocean_data.get("hours"):
-                hour_data = ocean_data["hours"][0]
-                speed = hour_data["currentSpeed"]["noaa"]
-                direction = hour_data["currentDirection"]["noaa"]
+            # Convert to DataFrame and display it
+            df_forecast = pd.DataFrame(forecast_list)
+            df_forecast['Date'] = pd.to_datetime(df_forecast['Date'])
+            df_forecast.set_index('Date', inplace=True)
+            st.dataframe(df_forecast)
 
-                st.write(f"**Speed:** {speed:.2f} m/s")
-                st.write(f"**Direction:** {direction:.1f}°")
-
-                # Plot ocean current data as a simple chart
-                fig, ax = plt.subplots()
-                ax.bar(["Current Speed"], [speed], color='blue')
-                ax.set_ylabel('Speed (m/s)')
-                ax.set_title('Ocean Current Speed')
-                st.pyplot(fig)
-
-            else:
-                st.warning("🌊 No ocean current data available for this location.")
+            # Plotting the forecast temperatures
+            fig, ax = plt.subplots(figsize=(10, 5))
+            ax.plot(df_forecast.index, df_forecast['Temperature (°C)'], marker='o', color='b', label='Temperature (°C)')
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Temperature (°C)')
+            ax.set_title(f"{city} - 5-Day Weather Forecast")
+            ax.legend()
+            st.pyplot(fig)
 
         else:
-            st.warning(f"🌊 Stormglass API returned an error: {response_ocean.status_code}.")
-            st.warning(f"Error message: {response_ocean.text}")
+            st.error("❌ Failed to fetch forecast data.")
 
     except Exception as e:
-        st.warning(f"🌊 Ocean current data error: {e}")
+        st.warning(f"🌤️ Forecast data error: {e}")
 
-    # Add link to Stormglass API website
-    st.markdown(
-        "[Learn more about Stormglass API](https://stormglass.io/) for ocean data and other API services."
-    )
