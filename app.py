@@ -89,13 +89,18 @@ if city:
     st.subheader("🌊 Ocean Currents (if near sea)")
 
     try:
+        # Manually specify coordinates for Varna
+        lat_varna = 43.2140
+        lon_varna = 27.9147
+
         end_time = datetime.datetime.utcnow().isoformat()
 
+        # Query Stormglass API for ocean currents
         response_ocean = requests.get(
             'https://api.stormglass.io/v2/ocean/currents/point',
             params={
-                'lat': lat,
-                'lng': lon,
+                'lat': lat_varna,
+                'lng': lon_varna,
                 'params': 'currentSpeed,currentDirection',
                 'source': 'noaa',
                 'end': end_time
@@ -107,6 +112,8 @@ if city:
 
         if response_ocean.status_code == 200:
             ocean_data = response_ocean.json()
+
+            # Check if data for ocean currents exists
             if ocean_data.get("hours"):
                 hour_data = ocean_data["hours"][0]
                 speed = hour_data["currentSpeed"]["noaa"]
