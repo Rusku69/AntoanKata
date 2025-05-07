@@ -53,7 +53,7 @@ if city:
         st.error("❌ Failed to fetch weather data. Check the city name.")
         st.stop()
 
-    # --- Get Air Pollution Data ---
+    # --- Get Air Pollution Data (Including PM2.5) ---
     pollution_params = {
         "lat": lat,
         "lon": lon,
@@ -75,10 +75,15 @@ if city:
             5: "Very Poor"
         }
 
-        st.subheader("Air Quality Index")
+        st.subheader("Air Quality Index (AQI)")
         st.metric("AQI", f"{aqi} - {aqi_level.get(aqi)}")
 
-        # Show pollutant concentrations
+        # Show pollutant concentrations, including PM2.5
+        pm25_concentration = components.get('pm2_5', None)
+        if pm25_concentration is not None:
+            st.write(f"**PM2.5 (Fine Particulate Matter):** {pm25_concentration} μg/m³")
+        
+        # Show other pollutants as a bar chart
         df_pollutants = pd.DataFrame(components.items(), columns=["Pollutant", "μg/m³"])
         st.bar_chart(df_pollutants.set_index("Pollutant"))
 
@@ -132,4 +137,3 @@ if city:
 
     except Exception as e:
         st.warning(f"🌤️ Forecast data error: {e}")
-
