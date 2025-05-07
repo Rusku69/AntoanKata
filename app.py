@@ -133,7 +133,8 @@ if city:
                 st.warning("🌊 No ocean current data available for this location.")
 
         else:
-            st.warning("🌊 No ocean current data available for this location.")
+            st.warning(f"🌊 Stormglass API returned an error: {response_ocean.status_code}.")
+            st.warning(f"Error message: {response_ocean.text}")
 
     except Exception as e:
         st.warning(f"🌊 Ocean current data error: {e}")
