@@ -95,9 +95,9 @@ if city:
 
         end_time = datetime.datetime.utcnow().isoformat()
 
-        # Query Stormglass API for ocean currents
+        # Corrected API URL
         response_ocean = requests.get(
-            'https://api.stormglass.io/v2/ocean/currents/point',
+            'https://api.stormglass.io/v2/weather/point',
             params={
                 'lat': lat_varna,
                 'lng': lon_varna,
