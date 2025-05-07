@@ -3,7 +3,7 @@ import requests #connect with API
 import pandas as pd #tables
 import mathplotlib.pyplot as plt #for visualisations
 
-API-KEY = "db21681e4a2b591911616c15640d8440"
+API_KEY = "db21681e4a2b591911616c15640d8440"
 URL_Weather = https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API key}
 URL_AIR= http://api.openweathermap.org/data/2.5/air_pollution?lat={lat}&lon={lon}&appid={API key}
 
