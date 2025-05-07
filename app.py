@@ -2,10 +2,12 @@ import streamlit as st  # web app
 import requests         # connect with API
 import pandas as pd     # tables
 import matplotlib.pyplot as plt  # plotting
+import datetime
 
-API_KEY = "db21681e4a2b591911616c15640d8440"
+API_KEY = "db21681e4a2b591911616c15640d8440"  # OpenWeatherMap API Key
 URL_WEATHER = "https://api.openweathermap.org/data/2.5/weather"
 URL_POLLUTION = "http://api.openweathermap.org/data/2.5/air_pollution"
+STORMGLASS_API_KEY = "7becd2a2-2b28-11f0-863c-0242ac130003-7becd306-2b28-11f0-863c-0242ac130003"  # Stormglass API Key
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="Weather & Air Quality App", layout="centered")
@@ -82,3 +84,39 @@ if city:
 
     else:
         st.error("❌ Failed to fetch air pollution data.")
+
+    # --- Get Ocean Currents (Stormglass) ---
+    st.subheader("🌊 Ocean Currents (if near sea)")
+
+    try:
+        end_time = datetime.datetime.utcnow().isoformat()
+
+        response_ocean = requests.get(
+            'https://api.stormglass.io/v2/ocean/currents/point',
+            params={
+                'lat': lat,
+                'lng': lon,
+                'params': 'currentSpeed,currentDirection',
+                'source': 'noaa',
+                'end': end_time
+            },
+            headers={
+                'Authorization': STORMGLASS_API_KEY
+            }
+        )
+
+        if response_ocean.status_code == 200:
+            ocean_data = response_ocean.json()
+            hour_data = ocean_data["hours"][0]
+
+            speed = hour_data["currentSpeed"]["noaa"]
+            direction = hour_data["currentDirection"]["noaa"]
+
+            st.write(f"**Speed:** {speed:.2f} m/s")
+            st.write(f"**Direction:** {direction:.1f}°")
+
+        else:
+            st.warning("🌊 No ocean current data available for this location.")
+
+    except Exception as e:
+        st.warning(f"🌊 Ocean current data error: {e}")
