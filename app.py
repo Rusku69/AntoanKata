@@ -107,13 +107,23 @@ if city:
 
         if response_ocean.status_code == 200:
             ocean_data = response_ocean.json()
-            hour_data = ocean_data["hours"][0]
+            if ocean_data.get("hours"):
+                hour_data = ocean_data["hours"][0]
+                speed = hour_data["currentSpeed"]["noaa"]
+                direction = hour_data["currentDirection"]["noaa"]
 
-            speed = hour_data["currentSpeed"]["noaa"]
-            direction = hour_data["currentDirection"]["noaa"]
+                st.write(f"**Speed:** {speed:.2f} m/s")
+                st.write(f"**Direction:** {direction:.1f}°")
 
-            st.write(f"**Speed:** {speed:.2f} m/s")
-            st.write(f"**Direction:** {direction:.1f}°")
+                # Plot ocean current data as a simple chart
+                fig, ax = plt.subplots()
+                ax.bar(["Current Speed"], [speed], color='blue')
+                ax.set_ylabel('Speed (m/s)')
+                ax.set_title('Ocean Current Speed')
+                st.pyplot(fig)
+
+            else:
+                st.warning("🌊 No ocean current data available for this location.")
 
         else:
             st.warning("🌊 No ocean current data available for this location.")
